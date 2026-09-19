@@ -1,0 +1,36 @@
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.1135.0",
+    "@swc/core": "^1.15.0",
+    "@swc/jest": "^0.2.39",
+    "@types/jest": "^30",
+    "@types/node": "^24.10.1",
+    "@types/uuid": "^10.0.0",
+    "aws-cdk": "^2.1142.0",
+    "aws-cdk-lib": "^2.270.0",
+    "constructs": "^10.8.1",
+    "esbuild": "^0.28.2",
+    "jest": "^30",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.23.0",
+    "typescript": "~7.0.2"
+  },
+  "dependencies": {
+    "@aws-sdk/client-apigatewaymanagementapi": "^3.1134.0",
+    "@aws-sdk/client-dynamodb": "^3.1134.0",
+    "@aws-sdk/client-eventbridge": "^3.1134.0",
+    "@aws-sdk/lib-dynamodb": "^3.1134.0",
+    "@cedar-policy/cedar-wasm": "^4.13.0",
+    "@types/aws-lambda": "^8.10.163",
+    "strands-agents": "^0.0.1",
+    "uuid": "^14.0.2"
+  }
+}

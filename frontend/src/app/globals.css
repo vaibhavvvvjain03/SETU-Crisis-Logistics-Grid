@@ -1,0 +1,304 @@
+@import "tailwindcss";
+
+
+/* ============================================================
+   SETU DESIGN SYSTEM — "2.5D Editorial Operations"
+   ============================================================ */
+
+/* --- SETU Color System --- */
+:root {
+  /* Foundation */
+  --setu-ink:        #0F0E0C;
+  --setu-ink-dim:    #2A2825;
+  --setu-paper:      #F5F0E8;
+  --setu-bone:       #EDE8DD;
+  --setu-cream:      #E8E2D4;
+  --setu-dust:       #C8C0B0;
+  --setu-ash:        #A09890;
+  --setu-dim:        #6B6560;
+
+  /* Brand / Operational */
+  --setu-signal:     #E8602A;
+  --setu-amber:      #C9440D;
+  --setu-amber-dim:  rgba(201, 68, 13, 0.12);
+  --setu-amber-bg:   #FFF4ED;
+
+  /* Status */
+  --setu-crisis:     #B91C1C;
+  --setu-crisis-bg:  #FEF2F2;
+  --setu-crisis-dim: rgba(185, 28, 28, 0.08);
+  --setu-crisis-border: rgba(185, 28, 28, 0.3);
+  --setu-high:       #D97706;
+  --setu-high-bg:    #FFFBEB;
+  --setu-verified:   #2D6A4F;
+  --setu-verified-bg: #F0FDF4;
+
+  /* Typography */
+  --font-display:    'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-ui:         'Space Grotesk', system-ui, -apple-system, sans-serif;
+
+  /* Motion */
+  --ease-out-expo:   cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-in-out:     cubic-bezier(0.77, 0, 0.175, 1);
+  --dur-fast:        180ms;
+  --dur-mid:         340ms;
+  --dur-slow:        600ms;
+  --dur-crawl:       1200ms;
+
+  /* Spacing */
+  --grid-gap:        1rem;
+  --section-pad:     3rem;
+}
+
+/* ============================================================
+   BASE RESET & TYPOGRAPHY
+   ============================================================ */
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: var(--font-ui);
+    background-color: var(--setu-paper);
+    color: var(--setu-ink);
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: var(--font-ui);
+    background-color: var(--setu-paper);
+    color: var(--setu-ink);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* ============================================================
+   KEYFRAMES
+   ============================================================ */
+
+@keyframes connection-pulse {
+  0%   { opacity: 1; transform: scale(1); }
+  50%  { opacity: 0.4; transform: scale(1.5); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes conflict-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(185, 28, 28, 0.4); }
+  70%  { box-shadow: 0 0 0 8px rgba(185, 28, 28, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(185, 28, 28, 0); }
+}
+
+@keyframes conflict-border-pulse {
+  0%, 100% { border-color: rgba(185, 28, 28, 0.6); }
+  50%       { border-color: rgba(185, 28, 28, 1); }
+}
+
+@keyframes data-flow {
+  from { stroke-dashoffset: 40; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes data-flow-slow {
+  from { stroke-dashoffset: 80; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes sync-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes line-draw {
+  from { stroke-dashoffset: 600; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes number-tick {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scanline {
+  0%   { transform: translateY(-100%); opacity: 0.05; }
+  100% { transform: translateY(100vh); opacity: 0.05; }
+}
+
+/* ============================================================
+   TYPOGRAPHY SCALE
+   ============================================================ */
+
+.setu-display-xl {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 8vw, 5rem);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+}
+
+.setu-display-lg {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+}
+
+.setu-display-md {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.setu-heading {
+  font-family: var(--font-ui);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--setu-ink);
+}
+
+.setu-body {
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--setu-ink);
+}
+
+.setu-label {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--setu-dim);
+}
+
+.setu-mono {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+
+.setu-container {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 clamp(1.5rem, 5vw, 5rem);
+}
+
+.animate-connection-pulse  { animation: connection-pulse 2s ease-in-out infinite; }
+.animate-conflict-pulse    { animation: conflict-pulse 2s ease-in-out infinite; }
+.animate-data-flow         { animation: data-flow 1.5s linear infinite; }
+.animate-data-flow-slow    { animation: data-flow-slow 3s linear infinite; }
+.animate-sync-spin         { animation: sync-spin 1.2s linear infinite; }
+.animate-blink             { animation: blink 1s step-end infinite; }
+.animate-fade-up           { animation: fade-up var(--dur-slow) var(--ease-out-expo) forwards; }
+.animate-number-tick       { animation: number-tick var(--dur-mid) var(--ease-out-expo) forwards; }
+
+/* Route lines */
+.route-line {
+  stroke-dasharray: 8 5;
+  animation: data-flow-slow 3s linear infinite;
+}
+
+.route-line-conflict {
+  stroke: var(--setu-crisis);
+  stroke-dasharray: 6 3;
+  animation: data-flow 1.2s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(185, 28, 28, 0.6));
+}
+
+/* Severity badges */
+.setu-badge-critical {
+  display: inline-flex; align-items: center;
+  padding: 0.18rem 0.45rem;
+  background: var(--setu-crisis); color: white;
+  font-size: 0.55rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; border-radius: 2px;
+}
+
+.setu-badge-high {
+  display: inline-flex; align-items: center;
+  padding: 0.18rem 0.45rem;
+  background: var(--setu-high); color: white;
+  font-size: 0.55rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; border-radius: 2px;
+}
+
+.setu-badge-medium {
+  display: inline-flex; align-items: center;
+  padding: 0.18rem 0.45rem;
+  background: var(--setu-bone); color: var(--setu-dim);
+  border: 1px solid var(--setu-dust);
+  font-size: 0.55rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; border-radius: 2px;
+}
+
+/* Status dot */
+.setu-dot-live    { width: 7px; height: 7px; border-radius: 50%; background: var(--setu-verified); display: inline-block; animation: connection-pulse 2s ease-in-out infinite; }
+.setu-dot-offline { width: 7px; height: 7px; border-radius: 50%; background: var(--setu-ash); display: inline-block; }
+.setu-dot-crisis  { width: 7px; height: 7px; border-radius: 50%; background: var(--setu-crisis); display: inline-block; animation: conflict-pulse 2s ease-in-out infinite; }
+
+/* Offline transformation vars */
+
+
+/* Scanline effect for offline */
+.setu-scanlines::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px
+  );
+  pointer-events: none; z-index: 9999;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--setu-bone); }
+::-webkit-scrollbar-thumb { background: var(--setu-dust); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--setu-ash); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .setu-display-xl { font-size: clamp(2.5rem, 10vw, 3.5rem); }
+  .setu-display-lg { font-size: clamp(1.8rem, 8vw, 2.2rem); }
+  .setu-container  { padding: 0 1rem; }
+}
