@@ -7,9 +7,9 @@ applications:
           commands:
             # Install from the monorepo root so workspace deps resolve correctly
             - cd ..
-            - npm install --include=optional
+            - rm -f package-lock.json frontend/package-lock.json shared/package-lock.json
+            - npm install --no-package-lock
             - cd frontend
-            - npm install -D lightningcss-linux-x64-gnu
         build:
           commands:
             - npm run build
