@@ -3,13 +3,13 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useDemoState } from '@/lib/DemoState';
+import { useApiState } from '@/lib/ApiState';
 import { LocationProfile } from '@setu/shared';
 
 type ActionStatus = 'idle' | 'submitting' | 'success' | 'queued' | 'error';
 
 export default function WarehouseTerminal() {
-  const { locations, inventory, conflicts, networkStatus, offlineQueue, addEvent } = useDemoState();
+  const { locations, inventory, conflicts, networkStatus, offlineQueue, addEvent } = useApiState();
   const isOnline = networkStatus !== 'OFFLINE';
   const router = useRouter();
 

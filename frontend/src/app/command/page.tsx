@@ -1,8 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { useDemoState } from '@/lib/DemoState';
+import { useApiState } from '@/lib/ApiState';
 import { Conflict, Recommendation, Event, LocationProfile } from '@setu/shared';
 import LogisticsNetwork from '@/components/command/LogisticsNetwork';
 
@@ -11,7 +11,25 @@ type NavSection = 'overview' | 'incidents' | 'camps' | 'warehouses' | 'drivers' 
 export default function CommandCentre() {
   const router = useRouter();
   const [active, setActive] = useState<NavSection>('overview');
-  const { conflicts, events, networkStatus } = useDemoState();
+  const { conflicts, events, networkStatus } = useApiState();
+
+  // KEYBOARD SHORTCUTS (ADHD Speedrunner Frame)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      switch (e.key.toLowerCase()) {
+        case 'o': setActive('overview'); break;
+        case 'i': setActive('incidents'); break;
+        case 'c': setActive('camps'); break;
+        case 'w': setActive('warehouses'); break;
+        case 'd': setActive('drivers'); break;
+        case 's': setActive('supply'); break;
+        case 'e': setActive('events'); break;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleSignOut = async () => {
     const { signOut } = await import('@/lib/auth');
@@ -111,7 +129,7 @@ function Sidebar({ active, onNav, conflictCount, onSignOut }: { active: NavSecti
 // Overview Panel
 // ---------------------------------------------------------------------------
 function OverviewPanel() {
-  const { locations, inventory, conflicts, events, recommendations, networkStatus } = useDemoState();
+  const { locations, inventory, conflicts, events, recommendations, networkStatus } = useApiState();
   
   const criticalCamps = inventory.filter(s => {
     const p = locations.find(l => l.locationId === s.locationId);
@@ -120,7 +138,10 @@ function OverviewPanel() {
     return (s.confirmedQuantity / rate) < 6;
   }).length;
   
-  const activeRequests = events.filter(e => e.eventType === 'REQUEST_SUBMITTED').length;
+  const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+  const activeRequests = events.filter(e => 
+    e.eventType === 'REQUEST_SUBMITTED' && new Date(e.timestamp).getTime() > oneDayAgo
+  ).length;
   const offlineTerminals = networkStatus === 'OFFLINE' ? 1 : 0;
   const latestDecision = recommendations.length > 0 ? recommendations[recommendations.length - 1] : null;
 
@@ -165,7 +186,11 @@ function OverviewPanel() {
             <span style={{ color: networkStatus === 'ONLINE' || networkStatus === 'RECONCILED' ? 'var(--setu-verified)' : 'var(--setu-high)' }}>● {networkStatus}</span>
           </div>
           <div style={{ flex: 1, overflowY: 'auto', padding: '0.5rem 1rem' }}>
-            {events.slice(0, 5).map(e => (
+            {events.length === 0 ? (
+              <div style={{ padding: '1.5rem 0', textAlign: 'center', color: 'var(--setu-ash)', fontSize: '0.75rem' }}>
+                Waiting for field activity…
+              </div>
+            ) : events.slice(0, 5).map(e => (
               <div key={e.eventId} style={{ display: 'flex', gap: '1rem', fontSize: '0.75rem', marginBottom: '0.5rem', fontFamily: 'Courier New, monospace' }}>
                 <span style={{ color: 'var(--setu-dim)' }}>{new Date(e.timestamp).toLocaleTimeString()}</span>
                 <span>{locations.find(l=>l.locationId === e.locationId)?.name || 'SETU'}</span>
@@ -211,7 +236,7 @@ function StatBox({ label, value, color }: { label: string, value: string | numbe
 // Other Panels (Placeholder replacements to use DemoContext)
 // ---------------------------------------------------------------------------
 function CampsPanel() {
-  const { locations, inventory } = useDemoState();
+  const { locations, inventory } = useApiState();
   const camps = locations.filter(l => l.type === 'CAMP');
   return (
     <div style={{ padding: '2rem' }}>
@@ -219,9 +244,20 @@ function CampsPanel() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
         {camps.map(camp => {
           const inv = inventory.find(i => i.locationId === camp.locationId);
+          const isStale = inv && inv.lastVerifiedAt 
+            ? (new Date().getTime() - new Date(inv.lastVerifiedAt).getTime()) / (1000 * 60 * 60) > 6 
+            : false;
+
           return (
-            <div key={camp.locationId} style={{ border: '1px solid var(--setu-dust)', padding: '1.5rem', background: 'var(--setu-bone)' }}>
-              <h3 style={{ fontWeight: 800, fontSize: '1.2rem', marginBottom: '1rem' }}>{camp.name}</h3>
+            <div key={camp.locationId} style={{ border: `1px solid ${isStale ? 'var(--setu-amber)' : 'var(--setu-dust)'}`, padding: '1.5rem', background: 'var(--setu-bone)', position: 'relative' }}>
+              <h3 style={{ fontWeight: 800, fontSize: '1.2rem', marginBottom: '1rem', color: isStale ? 'var(--setu-amber)' : 'var(--setu-ink)' }}>
+                {camp.name}
+              </h3>
+              {isStale && (
+                <div style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'var(--setu-amber)', color: 'white', padding: '0.2rem 0.4rem', fontSize: '0.6rem', fontWeight: 800, borderRadius: '2px' }}>
+                  STALE DATA (&gt;6H)
+                </div>
+              )}
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
                 <span style={{ color: 'var(--setu-dim)' }}>Population:</span>
                 <span style={{ fontWeight: 700 }}>{camp.population}</span>
@@ -239,7 +275,7 @@ function CampsPanel() {
 }
 
 function WarehousesPanel() {
-  const { locations, inventory } = useDemoState();
+  const { locations, inventory } = useApiState();
   const warehouses = locations.filter(l => l.type === 'WAREHOUSE');
   return (
     <div style={{ padding: '2rem' }}>
@@ -263,7 +299,7 @@ function WarehousesPanel() {
 }
 
 function DriversPanel() {
-  const { drivers } = useDemoState();
+  const { drivers } = useApiState();
   return (
     <div style={{ padding: '2rem' }}>
       <h2 className="setu-display-md" style={{ marginBottom: '2rem' }}>Drivers</h2>
@@ -298,7 +334,7 @@ function DriversPanel() {
 }
 
 function SupplyPanel() {
-  const { events, locations } = useDemoState();
+  const { events, locations } = useApiState();
   const requests = events.filter(e => e.eventType === 'REQUEST_SUBMITTED');
   return (
     <div style={{ padding: '2rem' }}>
@@ -328,7 +364,7 @@ function SupplyPanel() {
 }
 
 function IncidentsPanel() {
-  const { conflicts, locations } = useDemoState();
+  const { conflicts, locations, resolveConflict } = useApiState();
   return (
     <div style={{ padding: '2rem' }}>
       <h2 className="setu-display-md" style={{ marginBottom: '2rem' }}>Incidents</h2>
@@ -349,7 +385,7 @@ function IncidentsPanel() {
               <td style={{ padding: '1rem 0.5rem', fontWeight: 700 }}>{locations.find(l => l.locationId === c.locationId)?.name}</td>
               <td style={{ padding: '1rem 0.5rem', color: 'var(--setu-crisis)' }}>{c.conflictType.replace('_', ' ')}</td>
               <td style={{ padding: '1rem 0.5rem' }}><span className={c.severity === 'CRITICAL' ? 'setu-badge-critical' : 'setu-badge-high'}>{c.severity}</span></td>
-              <td style={{ padding: '1rem 0.5rem' }}><button style={{ padding: '0.3rem 0.8rem', background: 'var(--setu-ink)', color: 'var(--setu-paper)', border: 'none', fontSize: '0.7rem', cursor: 'pointer' }}>RESOLVE</button></td>
+              <td style={{ padding: '1rem 0.5rem' }}><button onClick={() => resolveConflict(c.conflictId, 'RESOLVED')} style={{ padding: '0.3rem 0.8rem', background: 'var(--setu-ink)', color: 'var(--setu-paper)', border: 'none', fontSize: '0.7rem', cursor: 'pointer' }}>RESOLVE</button></td>
             </tr>
           ))}
           {conflicts.length === 0 && <tr><td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: 'var(--setu-dim)' }}>No active incidents.</td></tr>}
@@ -360,7 +396,7 @@ function IncidentsPanel() {
 }
 
 function EventsPanel() {
-  const { events, locations } = useDemoState();
+  const { events, locations } = useApiState();
   return (
     <div style={{ padding: '2rem' }}>
       <h2 className="setu-display-md" style={{ marginBottom: '2rem' }}>Event Stream</h2>
@@ -389,7 +425,7 @@ function EventsPanel() {
 }
 
 function DecisionsPanel() {
-  const { recommendations, getExplainedDecision, locations } = useDemoState();
+  const { recommendations, locations } = useApiState();
   return (
     <div style={{ padding: '2rem', height: '100%', overflowY: 'auto' }}>
       <h2 className="setu-display-md" style={{ marginBottom: '2rem' }}>Decisions</h2>
@@ -404,27 +440,54 @@ function DecisionsPanel() {
               <div style={{ fontWeight: 700, marginBottom: '0.5rem' }}>ALLOCATION</div>
               {Object.entries(rec.destinations).map(([loc, qty]) => (
                 <div key={loc} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem', fontFamily: 'Courier New' }}>
-                  <span>{locations.find(l => l.locationId === loc)?.name}</span>
+                  <span>{locations.find(l => l.locationId === loc)?.name || loc}</span>
                   <span style={{ fontWeight: 700 }}>{qty as number} L</span>
                 </div>
               ))}
             </div>
             <div style={{ color: 'var(--setu-verified)', fontWeight: 700, fontSize: '0.8rem' }}>✓ Survival priority<br/>✓ Available inventory<br/>✓ 24h safety threshold<br/>✓ Conflict resolved</div>
           </div>
-          <div>
-            <div className="setu-label" style={{ marginBottom: '1rem', color: 'var(--setu-amber)' }}>EXPLANATION (BEDROCK)</div>
-            <div style={{ padding: '1.5rem', background: 'var(--setu-paper)', border: '1px solid var(--setu-amber)', fontFamily: 'Courier New, monospace', fontSize: '0.9rem', lineHeight: 1.6, color: 'var(--setu-ink)' }}>
-              {getExplainedDecision(rec.recommendationId)}
-            </div>
-          </div>
+          <ExplanationBox recommendationId={rec.recommendationId} />
         </div>
       ))}
     </div>
   );
 }
 
+function ExplanationBox({ recommendationId }: { recommendationId: string }) {
+  const { getExplainedDecision } = useApiState();
+  const [explanation, setExplanation] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleExplain = async () => {
+    setLoading(true);
+    const result = await getExplainedDecision(recommendationId);
+    setExplanation(result || 'Explanation unavailable.');
+    setLoading(false);
+  };
+
+  return (
+    <div>
+      <div className="setu-label" style={{ marginBottom: '1rem', color: 'var(--setu-amber)' }}>EXPLANATION (BEDROCK)</div>
+      {!explanation && !loading && (
+        <button onClick={handleExplain} style={{ padding: '0.75rem 1.5rem', background: 'transparent', border: '2px solid var(--setu-amber)', color: 'var(--setu-amber)', fontWeight: 700, cursor: 'pointer', fontSize: '0.8rem', letterSpacing: '0.05em' }}>
+          EXPLAIN WITH BEDROCK
+        </button>
+      )}
+      {loading && (
+        <div style={{ color: 'var(--setu-amber)', fontFamily: 'Courier New', fontSize: '0.9rem' }}>Generating explanation...</div>
+      )}
+      {explanation && (
+        <div style={{ padding: '1.5rem', background: 'var(--setu-paper)', border: '1px solid var(--setu-amber)', fontFamily: 'Courier New, monospace', fontSize: '0.9rem', lineHeight: 1.6, color: 'var(--setu-ink)' }}>
+          {explanation}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SystemPanel() {
-  const { networkStatus, offlineQueue } = useDemoState();
+  const { networkStatus, offlineQueue } = useApiState();
   return (
     <div style={{ padding: '2rem' }}>
       <h2 className="setu-display-md" style={{ marginBottom: '2rem' }}>System</h2>

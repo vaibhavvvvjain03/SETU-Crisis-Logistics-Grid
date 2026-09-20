@@ -3,7 +3,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useDemoState } from '@/lib/DemoState';
+import { useApiState } from '@/lib/ApiState';
 
 type SubmitStatus = 'idle' | 'submitting' | 'success' | 'queued' | 'error';
 interface SubmitResult {
@@ -30,7 +30,7 @@ function FieldTerminalInner() {
   const searchParams = useSearchParams();
   const role = searchParams.get('role') || 'camp';
   
-  const { locations, inventory, networkStatus, offlineQueue, addEvent, toggleSimulateOffline } = useDemoState();
+  const { locations, inventory, networkStatus, offlineQueue, addEvent, toggleSimulateOffline } = useApiState();
   const isOnline = networkStatus !== 'OFFLINE';
   const router = useRouter();
 

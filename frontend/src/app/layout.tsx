@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import SwRegister from "@/components/SwRegister";
-import { DemoProvider } from "@/lib/DemoState";
+import { ApiProvider } from "@/lib/ApiState";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -41,9 +41,9 @@ export default function RootLayout({
         }}
       >
         <SwRegister />
-        <DemoProvider>
+        <ApiProvider>
           {children}
-        </DemoProvider>
+        </ApiProvider>
       </body>
     </html>
   );

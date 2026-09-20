@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useDemoState } from '@/lib/DemoState';
+import { useApiState } from '@/lib/ApiState';
 
 type RouteStatus = 'EN_ROUTE' | 'DELIVERED' | 'DIVERTED' | 'DELAYED';
 type ActionStatus = 'idle' | 'submitting' | 'success' | 'queued' | 'error';
@@ -16,7 +16,7 @@ const STATUS_COLORS: Record<RouteStatus, { bg: string; color: string; border: st
 };
 
 export default function DriverTerminal() {
-  const { networkStatus, offlineQueue, addEvent } = useDemoState();
+  const { networkStatus, offlineQueue, addEvent } = useApiState();
   const isOnline = networkStatus !== 'OFFLINE';
   const router = useRouter();
 

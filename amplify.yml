@@ -1,0 +1,24 @@
+version: 1
+applications:
+  - appRoot: frontend
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            # Install from the monorepo root so workspace deps resolve correctly
+            - cd ..
+            - npm ci --prefer-offline
+            - cd frontend
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        # .next/standalone + static assets for SSR (WEB_COMPUTE)
+        baseDirectory: .next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+          - ../node_modules/**/*
+          - .next/cache/**/*

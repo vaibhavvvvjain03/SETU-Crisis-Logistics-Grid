@@ -7,6 +7,7 @@ const client = new EventBridgeClient({});
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const batchId = uuidv4();
+    const eventBusName = process.env.EVENT_BUS_NAME || 'SetuEventBus';
     
     await client.send(new PutEventsCommand({
       Entries: [
@@ -14,7 +15,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           Source: 'SETU.SyncEvent',
           DetailType: 'Reconciliation Trigger',
           Detail: JSON.stringify({ batchId, timestamp: new Date().toISOString() }),
-          EventBusName: 'default',
+          EventBusName: eventBusName,
         }
       ]
     }));

@@ -224,6 +224,33 @@ export default function LandingHero() {
               letterSpacing: '-0.04em',
               color: 'var(--setu-ink)',
             }}>SETU</div>
+            <button
+              onClick={async () => {
+                const res = await fetch('/api/reset', {
+                  method: 'POST',
+                  headers: { 'x-reset-token': 'setu-hackathon-2024-reset' },
+                });
+                if (res.ok) {
+                  // Also clear local browser state
+                  localStorage.removeItem('setu_events');
+                  alert('Demo reset to initial state successfully. Reload to see clean baseline.');
+                } else {
+                  const data = await res.json().catch(() => ({}));
+                  alert(`Failed to reset demo: ${data.error || res.status}`);
+                }
+              }}
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--setu-dust)',
+                color: 'var(--setu-dim)',
+                padding: '0.4rem 0.8rem',
+                fontSize: '0.65rem',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
+              RESET DEMO
+            </button>
           </motion.header>
         )}
       </AnimatePresence>

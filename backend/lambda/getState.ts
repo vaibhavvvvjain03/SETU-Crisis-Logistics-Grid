@@ -10,14 +10,18 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const stateTable = process.env.STATE_TABLE;
     const conflictTable = process.env.CONFLICT_TABLE;
     const recTable = process.env.RECOMMENDATION_TABLE;
+    const eventTable = process.env.EVENT_TABLE;
 
-    if (!stateTable || !conflictTable || !recTable) throw new Error('Missing tables');
+    if (!stateTable || !conflictTable || !recTable || !eventTable) throw new Error('Missing tables');
 
-    const [stateData, conflictData, recData] = await Promise.all([
+    const [stateData, conflictData, recData, eventData] = await Promise.all([
       docClient.send(new ScanCommand({ TableName: stateTable })),
       docClient.send(new ScanCommand({ TableName: conflictTable })),
-      docClient.send(new ScanCommand({ TableName: recTable }))
+      docClient.send(new ScanCommand({ TableName: recTable })),
+      docClient.send(new ScanCommand({ TableName: eventTable }))
     ]);
+
+    const events = (eventData.Items || []).sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
     return {
       statusCode: 200,
@@ -25,7 +29,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       body: JSON.stringify({ 
         state: stateData.Items || [], 
         conflicts: conflictData.Items || [], 
-        recommendations: recData.Items || [] 
+        recommendations: recData.Items || [],
+        events: events
       }),
     };
   } catch (error: any) {

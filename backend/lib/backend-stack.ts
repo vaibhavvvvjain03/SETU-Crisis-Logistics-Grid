@@ -99,6 +99,7 @@ export class BackendStack extends cdk.Stack {
     stateTable.grantReadData(getStateFn);
     conflictTable.grantReadData(getStateFn);
     recommendationTable.grantReadData(getStateFn);
+    eventTable.grantReadData(getStateFn);
 
     const registerSupplyFn = new nodejs.NodejsFunction(this, 'RegisterSupply', {
       entry: path.join(__dirname, '../lambda/registerSupply.ts'),
