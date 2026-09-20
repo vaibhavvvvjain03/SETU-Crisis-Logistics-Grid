@@ -9,6 +9,7 @@ applications:
             - cd ..
             - npm install --include=optional
             - cd frontend
+            - npm install -D lightningcss-linux-x64-gnu
         build:
           commands:
             - npm run build
