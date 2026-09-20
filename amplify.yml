@@ -7,7 +7,7 @@ applications:
           commands:
             # Install from the monorepo root so workspace deps resolve correctly
             - cd ..
-            - npm ci --prefer-offline
+            - npm install --include=optional
             - cd frontend
         build:
           commands:
